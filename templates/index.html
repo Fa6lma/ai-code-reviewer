@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Code Reviewer</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        select {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            height: 300px;
+            resize: vertical;
+            font-family: monospace;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #111;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 20px;
+        }
+
+        #result {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .error {
+            color: #b00020;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🤖 AI Code Reviewer</h1>
+
+    <div class="subtitle">
+        Analyze your code using Artificial Intelligence
+    </div>
+
+    <div class="card">
+
+        <label for="language">Programming Language</label>
+
+        <select id="language">
+            <option value="Python">Python</option>
+            <option value="JavaScript">JavaScript</option>
+            <option value="Java">Java</option>
+        </select>
+
+        <label for="code">Your Code</label>
+
+        <textarea
+            id="code"
+            placeholder="Paste your code here..."
+        ></textarea>
+
+        <button id="analyzeBtn" onclick="analyzeCode()">
+            Analyze Code
+        </button>
+
+    </div>
+
+    <div id="loading">
+        🤖 AI is analyzing your code...
+    </div>
+
+    <div class="card">
+
+        <h2>📊 Analysis</h2>
+
+        <div id="result">
+            Your analysis will appear here.
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+async function analyzeCode() {
+
+    const code =
+        document.getElementById("code").value;
+
+    const language =
+        document.getElementById("language").value;
+
+    const button =
+        document.getElementById("analyzeBtn");
+
+    const loading =
+        document.getElementById("loading");
+
+    const result =
+        document.getElementById("result");
+
+    if (!code.trim()) {
+
+        result.innerHTML =
+            '<span class="error">Please enter some code.</span>';
+
+        return;
+    }
+
+    button.disabled = true;
+    loading.style.display = "block";
+    result.textContent = "";
+
+    try {
+
+        const response = await fetch("/analyze", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                code: code,
+                language: language
+            })
+
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Something went wrong."
+            );
+        }
+
+        result.textContent = data.result;
+
+    } catch (error) {
+
+        result.innerHTML =
+            `<span class="error">
+                Error: ${error.message}
+            </span>`;
+
+    } finally {
+
+        button.disabled = false;
+        loading.style.display = "none";
+
+    }
+}
+
+</script>
+
+</body>
+</html>
